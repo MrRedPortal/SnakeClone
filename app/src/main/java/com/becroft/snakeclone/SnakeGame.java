@@ -85,15 +85,19 @@ public class SnakeGame extends SurfaceView implements Runnable {
         paint = new Paint();
 
         // Call game object constructors
+        apple = new Apple(context, new Point(NUM_BLOCKS_WIDE, numBlocksHigh),blockSize);
+        snake = new Snake(context, new Point(NUM_BLOCKS_WIDE, numBlocksHigh), blockSize);
+
     }
 
     // called to start new game
     public void newGame(){
 
         // Reset snake
+        snake.reset(NUM_BLOCKS_WIDE,numBlocksHigh);
 
         // Prepare apple
-
+        apple.spawn();
         // Reset score
         score = 0;
         // Setup nextFrameTime so an update can be triggered
@@ -137,10 +141,24 @@ public class SnakeGame extends SurfaceView implements Runnable {
     // Update all game objects
     public void update(){
         // Move snake
+        snake.move();
 
         // Did head ate apple
-
+        if(snake.checkDinner(apple.getLocation())){
+            // Position new apple
+            apple.spawn();
+            // Increase score
+            score = score +1;
+            // play tune
+            soundPool.play(EAT_ID,1,1,0,0,1);
+        }
         // Did snake died?
+        if (snake.detectDeath()){
+            // Pause screen and play tune
+            soundPool.play(CRASH_ID, 1,1,0,0,1);
+            paused = true;
+        }
+
     }
 
     // Draw the things
@@ -160,6 +178,8 @@ public class SnakeGame extends SurfaceView implements Runnable {
             canvas.drawText("" + score, 20,120,paint);
 
             // draw apple and snake
+            apple.draw(canvas, paint);
+            snake.draw(canvas, paint);
 
             // Draw some text while paused
             if(paused){
@@ -183,14 +203,13 @@ public class SnakeGame extends SurfaceView implements Runnable {
             case(MotionEvent.ACTION_UP):
                 if(paused){
                     paused=false;
-                    newGame();;
+                    newGame();
 
                     // Don't want to process snake movement on this tap
                     return true;
                 }
-
                 // Let snake class handle input
-
+                snake.switchHeading(motionEvent);
                 break;
             default:
                 break;

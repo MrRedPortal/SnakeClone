@@ -21,7 +21,7 @@ public class SnakeActivity extends Activity {
         // get pixel dimensions of screen
         Display display = getWindowManager().getDefaultDisplay();
 
-        // Intialise the result into a point object
+        // Initialise the result into a point object
         Point size = new Point();
         display.getSize(size);
 
